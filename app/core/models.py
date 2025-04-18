@@ -16,6 +16,7 @@ class Part(Base):
     '''
     Part's model
     '''
+    DESCRIPTION_MAX_LENGHT = 1024
     name = models.CharField(max_length=150, default='')
     sku = models.CharField(max_length=30, unique=True)
     description = models.CharField(max_length=1024, default='')
@@ -27,7 +28,17 @@ class Part(Base):
             self.name,
             self.sku
         )
-    
+    def save(self, *args, **kwargs):
+        if not self.name:
+            raise Exception('Name can not be empty')
+        if not self.sku:
+            raise Exception('SKU can not be empty')
+        if self.weight_onces < 0:
+            raise Exception('Weight_onces must be bigger than 0')
+        if self.description and len(self.description) > Part.DESCRIPTION_MAX_LENGHT:
+            raise Exception('Description can not be bigger the 1024 chars')
+        
+        super().save(self)    
     class Meta:
         ordering = ('name', '-created_at', )
 
