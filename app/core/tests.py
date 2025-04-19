@@ -100,3 +100,10 @@ class PartTestCase(TestCase):
             part = None
         
         self.assertIsNone(part)
+
+    # TO DICT Tests
+    def test_part_to_dict(self):
+        part = Part.objects.create(name='Heavy coil', sku='SDJDDH8223DHJ', description='Tightly wound nickel-gravy alloy spring', weight_onces=22, is_active=1)
+        part_dict = part.to_dict()
+        self.assertDictContainsSubset({'name':'Heavy coil', 'sku': 'SDJDDH8223DHJ', 'description': 'Tightly wound nickel-gravy alloy spring', 'weight_onces':22, 'is_active':1}, part_dict)
+

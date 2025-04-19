@@ -9,6 +9,9 @@ class Base(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(null=True)
 
+    def to_dict(self):
+        return  {}
+
     class Meta:
         abstract = True
 
@@ -38,7 +41,18 @@ class Part(Base):
         if self.description and len(self.description) > Part.DESCRIPTION_MAX_LENGHT:
             raise Exception('Description can not be bigger the 1024 chars')
         
-        super().save(self)    
+        super().save(self)   
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'sku': self.sku,
+            'description': self.description,
+            'weight_onces': self.weight_onces,
+            'is_active': self.is_active,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        } 
     class Meta:
         ordering = ('name', '-created_at', )
 
