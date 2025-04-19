@@ -38,6 +38,45 @@ class PartsRequestsTestCase(TestCase):
         # Test the search for a inexistent part 
         res = self.client.get(PartsRequestsTestCase.PART_GET_URL + '/sku=some-sku-code')
         self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_NOT_FOUND)
+    
+    def test_search_fields(self):
+        # Test the search fiels of Part models
+        param_to_search_for = 'name'
+        value_to_search_for = 'Macrochip'
+        res = self.client.get(PartsRequestsTestCase.PARTS_GET_URL + '/param={param}/value={value}'.format(
+            param=param_to_search_for, 
+            value=value_to_search_for)
+        )
+        result = res.json()        
+        self.assertEquals(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
+        self.assertEqual(type(result), list)
+        self.assertEqual(result[0].get('name'), value_to_search_for)
+    
+    def test_search_fields_weight_onces(self):
+        # Test the search fiels of Part models
+        param_to_search_for = 'weight_onces'
+        value_to_search_for = 22
+        res = self.client.get(PartsRequestsTestCase.PARTS_GET_URL + '/param={param}/value={value}'.format(
+            param=param_to_search_for, 
+            value=value_to_search_for)
+        )
+        result = res.json()        
+        self.assertEquals(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
+        self.assertEqual(type(result), list)
+        self.assertEqual(result[0].get('weight_onces'), value_to_search_for)
+    
+    def test_search_field_description(self):
+        # Test the search fiels of Part models
+        param_to_search_for = 'description'
+        value_to_search_for = 'heavy'
+        res = self.client.get(PartsRequestsTestCase.PARTS_GET_URL + '/param={param}/value={value}'.format(
+            param=param_to_search_for, 
+            value=value_to_search_for)
+        )
+        result = res.json()        
+        self.assertEquals(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
+        self.assertEqual(type(result), list)
+        self.assertEqual(result[0].get('name'), 'Macrochip')
 
 class PartTestCase(TestCase):
 
