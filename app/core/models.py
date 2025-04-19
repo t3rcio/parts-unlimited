@@ -20,6 +20,7 @@ class Part(Base):
     '''
     Part's model
     '''
+    SEARCH_FIELDS = ['name', 'sku', 'weight_onces', 'description']
     DESCRIPTION_MAX_LENGHT = 1024
     name = models.CharField(max_length=150, default='')
     sku = models.CharField(max_length=30, unique=True)
