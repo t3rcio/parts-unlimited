@@ -2,7 +2,42 @@
 import django
 from django.test import TestCase
 
+import json
+
 from core.models import Part
+
+class PartsRequestsTestCase(TestCase):
+    '''
+    Tests for API requests
+    '''
+    PARTS_GET_URL ='/api/parts'
+    PART_GET_URL = '/api/part'
+    SKU_SAMPLE = 'OWDD823011DJSD'
+    HTTP_SUCCESS = 200
+    HTTP_NOT_FOUND = 404
+    HTTP_SERVER_ERROR = 500
+    
+    def setUp(self):
+        return super().setUp()
+    
+    def test_parts_list(self):
+        # Test the parts list view
+        res = self.client.get(PartsRequestsTestCase.PARTS_GET_URL)
+        result = json.loads(res.json())        
+        self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
+        self.assertEqual(type(result), list)        
+    
+    def test_get_part_by_sku(self):
+        # Test the part retrieve by sku parameter in querystring
+        res = self.client.get(PartsRequestsTestCase.PART_GET_URL + '/sku=' + PartsRequestsTestCase.SKU_SAMPLE)
+        self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
+        result = json.loads(res.json())        
+        self.assertEqual(result.get('sku'), PartsRequestsTestCase.SKU_SAMPLE)
+    
+    def test_404_parts(self):
+        # Test the search for a inexistent part 
+        res = self.client.get(PartsRequestsTestCase.PART_GET_URL + '/sku=some-sku-code')
+        self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_NOT_FOUND)
 
 class PartTestCase(TestCase):
 

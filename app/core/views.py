@@ -31,6 +31,22 @@ def parts(request):
     parts_collection = [
         p.to_dict() for p in parts    
     ]
-    response = json.dumps(parts_collection)
-    return JsonResponse(response, safe=False)
+    data = json.dumps(parts_collection)
+    response = JsonResponse(data, safe=False)    
+    return response
 
+@api.get('/part/sku={sku}')
+def parts_by_sku(request, sku):
+    response = HttpResponse()
+    try:
+        part = Part.objects.get(sku=sku)
+        data = json.dumps(part.to_dict())
+        response = JsonResponse(data, safe=False)
+    except Part.DoesNotExist:
+        response.status_code = 404
+    except Exception as _exception:
+        trace = traceback.format_exc()
+        logging.error(trace + '\n' + str(_exception))
+        response.status_code = 500
+    
+    return response
