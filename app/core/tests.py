@@ -14,8 +14,9 @@ class PartsRequestsTestCase(TestCase):
     PART_GET_URL = '/api/part'
     SKU_SAMPLE = 'OWDD823011DJSD'
     HTTP_SUCCESS = 200
+    HTTP_ERROR_REQUEST = 400
     HTTP_NOT_FOUND = 404
-    HTTP_SERVER_ERROR = 500
+    HTTP_SERVER_ERROR = 500    
     
     def setUp(self):
         return super().setUp()
@@ -77,6 +78,17 @@ class PartsRequestsTestCase(TestCase):
         self.assertEquals(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
         self.assertEqual(type(result), list)
         self.assertEqual(result[0].get('name'), 'Macrochip')
+    
+    def test_inexistent_search_field(self):
+        # Test the search fiels with inexistent param
+        param_to_search_for = 'some-inexistent-param'
+        value_to_search_for = 'heavy'
+        res = self.client.get(PartsRequestsTestCase.PARTS_GET_URL + '/param={param}/value={value}'.format(
+            param=param_to_search_for, 
+            value=value_to_search_for)
+        )
+        self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_ERROR_REQUEST)
+        
 
 class PartTestCase(TestCase):
 
