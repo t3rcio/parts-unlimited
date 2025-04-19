@@ -1,4 +1,5 @@
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -50,8 +51,8 @@ class Part(Base):
             'description': self.description,
             'weight_onces': self.weight_onces,
             'is_active': self.is_active,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'created_at': self.created_at.strftime(settings.FORMAT_DATETIME),
+            'updated_at': self.updated_at.strftime(settings.FORMAT_DATETIME) if self.updated_at else ''
         } 
     class Meta:
         ordering = ('name', '-created_at', )
