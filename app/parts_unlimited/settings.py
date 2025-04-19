@@ -130,5 +130,6 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 FORMAT_DATE = '%Y-%m-%d'
+FORMAT_DATETIME = '%Y-%m-%d %H:%M:%S'
 LOG_PATH = os.path.join(BASE_DIR, '_logs')
 LOG_FILENAME = LOG_PATH + '/' + datetime.now().strftime(FORMAT_DATE) + '.log'
