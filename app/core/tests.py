@@ -3,8 +3,18 @@ import django
 from django.test import TestCase
 
 import json
+import random
+from string import ascii_uppercase
 
 from core.models import Part
+
+SKU_MAX_SIZE = 30
+
+def get_a_random_sku():
+    _sku = ''
+    for i in range(0, SKU_MAX_SIZE):
+        _sku += random.choice(ascii_uppercase)
+    return _sku
 
 class PartsRequestsTestCase(TestCase):
     '''
@@ -88,7 +98,7 @@ class PartsRequestsTestCase(TestCase):
             value=value_to_search_for)
         )
         self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_ERROR_REQUEST)
-        
+
 
 class PartTestCase(TestCase):
 
@@ -98,7 +108,7 @@ class PartTestCase(TestCase):
     def test_create_valid_part(self):
         part = Part.objects.create(
             name = 'Heavy coil',
-            sku = 'SDJDDH8223DHJ',
+            sku = get_a_random_sku(),
             description = 'Tightly wound nickel-gravy alloy spring',
             weight_onces = 22,
             is_active = 1
@@ -189,7 +199,8 @@ class PartTestCase(TestCase):
 
     # TO DICT Tests
     def test_part_to_dict(self):
-        part = Part.objects.create(name='Heavy coil', sku='SDJDDH8223DHJ', description='Tightly wound nickel-gravy alloy spring', weight_onces=22, is_active=1)
+        _sku = get_a_random_sku()
+        part = Part.objects.create(name='Heavy coil', sku=_sku, description='Tightly wound nickel-gravy alloy spring', weight_onces=22, is_active=1)
         part_dict = part.to_dict()
-        self.assertDictContainsSubset({'name':'Heavy coil', 'sku': 'SDJDDH8223DHJ', 'description': 'Tightly wound nickel-gravy alloy spring', 'weight_onces':22, 'is_active':1}, part_dict)
+        self.assertDictContainsSubset({'name':'Heavy coil', 'sku': _sku, 'description': 'Tightly wound nickel-gravy alloy spring', 'weight_onces':22, 'is_active':1}, part_dict)
 
