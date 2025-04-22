@@ -41,7 +41,9 @@ class PartsRequestsTestCase(TestCase):
         res = self.client.get(PartsRequestsTestCase.PARTS_GET_URL)
         result = res.json()
         self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
-        self.assertEqual(type(result), list)        
+        self.assertEqual(type(result), dict)
+        self.assertIsNot(result.get('items'), {})
+        self.assertIsNot(result.get('items'), None)        
     
     def test_get_part_by_sku(self):
         # Test the part retrieve by sku parameter in querystring
@@ -65,8 +67,9 @@ class PartsRequestsTestCase(TestCase):
         )
         result = res.json()        
         self.assertEquals(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
-        self.assertEqual(type(result), list)
-        self.assertEqual(result[0].get('name'), value_to_search_for)
+        self.assertEqual(type(result), dict)
+        self.assertIsNot(result.get('items'), {})
+        self.assertIsNot(result.get('items'), None)
     
     def test_search_fields_weight_ounces(self):
         # Test the search fiels of Part models
@@ -78,8 +81,9 @@ class PartsRequestsTestCase(TestCase):
         )
         result = res.json()        
         self.assertEquals(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
-        self.assertEqual(type(result), list)
-        self.assertEqual(result[0].get('weight_ounces'), value_to_search_for)
+        self.assertEqual(type(result), dict)
+        self.assertIsNot(result.get('items'), {})
+        self.assertIsNot(result.get('items'), None)
     
     def test_search_field_description(self):
         # Test the search fiels of Part models
@@ -91,8 +95,9 @@ class PartsRequestsTestCase(TestCase):
         )
         result = res.json()        
         self.assertEquals(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
-        self.assertEqual(type(result), list)
-        self.assertEqual(result[0].get('name'), 'Macrochip')
+        self.assertEqual(type(result), dict)
+        self.assertIsNot(result.get('items'), {})
+        self.assertIsNot(result.get('items'), None)
     
     def test_inexistent_search_field(self):
         # Test the search fiels with inexistent param

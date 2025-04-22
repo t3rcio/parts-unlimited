@@ -19,7 +19,7 @@ logging.basicConfig(
 )
 
 WORDS_MOST_COMMON_LIMIT = 5
-PAGE_SIZE = 50
+PAGE_SIZE = 10
 class PartSchema(Schema):
     name: str
     sku: str
@@ -48,12 +48,18 @@ def existent_part(sku):
 
 
 @api.get('/parts')
-def parts(request):
+def parts(request, page=1):
+    data = {}
     parts = Part.objects.all()
     parts_collection = [
         p.to_dict() for p in parts    
     ]
-    data = parts_collection
+    items, pages = paginate_items(parts_collection, page_size=PAGE_SIZE)
+    data['items'] = items
+    data['pages'] = pages
+    data['current_page'] = page
+    data['next_page'] = '/api/parts?page=' + str(page+1) if page < pages else ''
+    data['previous_page'] = '/api/parts?page=' + str(page-1) if page > 1 else ''
     response = JsonResponse(data, safe=False)    
     return response
 
@@ -74,9 +80,10 @@ def parts_by_sku(request, sku):
     return response
 
 @api.get('/parts/param={param}/value={value}')
-def parts_by_parameters(request, param, value):
+def parts_by_parameters(request, param, value, page=1):
     response = HttpResponse()
     args = dict()
+    data = {}
     try:
         if param not in Part.SEARCH_FIELDS:
             response = HttpResponse()
@@ -95,7 +102,13 @@ def parts_by_parameters(request, param, value):
             response = JsonResponse(data, safe=False)
             return response
         
-        data = [p.to_dict() for p in parts]
+        parts_collection = [p.to_dict() for p in parts]
+        items, pages = paginate_items(parts_collection, page_size=PAGE_SIZE)
+        data['items'] = items
+        data['pages'] = pages
+        data['current_page'] = page
+        data['next_page'] = '/api/parts?page=' + str(page+1) if page < pages else ''
+        data['previous_page'] = '/api/parts?page=' + str(page-1) if page > 1 else ''
         response = JsonResponse(data, safe=False)
         return response
     except Exception as _exception:
