@@ -30,8 +30,8 @@ class Part(Base):
 
     def __str__(self):
         return 'Part {name} - SKU: {sku}'.format(
-            self.name,
-            self.sku
+            name=self.name,
+            sku=self.sku
         )
     def save(self, *args, **kwargs):
         if not self.name:
@@ -43,10 +43,11 @@ class Part(Base):
         if self.description and len(self.description) > Part.DESCRIPTION_MAX_LENGHT:
             raise Exception('Description can not be bigger the 1024 chars')
         
-        super().save(self)   
+        super().save(*args, **kwargs)
 
     def to_dict(self):
         return {
+            'id': self.id,
             'name': self.name,
             'sku': self.sku,
             'description': self.description,
