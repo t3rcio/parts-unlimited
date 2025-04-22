@@ -39,7 +39,7 @@ class PartsRequestsTestCase(TestCase):
     def test_parts_list(self):
         # Test the parts list view
         res = self.client.get(PartsRequestsTestCase.PARTS_GET_URL)
-        result = json.loads(res.json())        
+        result = res.json()
         self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
         self.assertEqual(type(result), list)        
     
@@ -47,7 +47,7 @@ class PartsRequestsTestCase(TestCase):
         # Test the part retrieve by sku parameter in querystring
         res = self.client.get(PartsRequestsTestCase.PART_GET_URL + '/sku=' + PartsRequestsTestCase.SKU_SAMPLE)
         self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
-        result = json.loads(res.json())        
+        result = res.json()
         self.assertEqual(result.get('sku'), PartsRequestsTestCase.SKU_SAMPLE)
     
     def test_404_parts(self):
@@ -68,9 +68,9 @@ class PartsRequestsTestCase(TestCase):
         self.assertEqual(type(result), list)
         self.assertEqual(result[0].get('name'), value_to_search_for)
     
-    def test_search_fields_weight_onces(self):
+    def test_search_fields_weight_ounces(self):
         # Test the search fiels of Part models
-        param_to_search_for = 'weight_onces'
+        param_to_search_for = 'weight_ounces'
         value_to_search_for = 22
         res = self.client.get(PartsRequestsTestCase.PARTS_GET_URL + '/param={param}/value={value}'.format(
             param=param_to_search_for, 
@@ -79,7 +79,7 @@ class PartsRequestsTestCase(TestCase):
         result = res.json()        
         self.assertEquals(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
         self.assertEqual(type(result), list)
-        self.assertEqual(result[0].get('weight_onces'), value_to_search_for)
+        self.assertEqual(result[0].get('weight_ounces'), value_to_search_for)
     
     def test_search_field_description(self):
         # Test the search fiels of Part models
@@ -112,7 +112,7 @@ class PartsRequestsTestCase(TestCase):
                 'name': 'some-part-name',
                 'sku': get_a_random_sku(),
                 'description': 'some description text',
-                'weight_onces': 100,
+                'weight_ounces': 100,
                 'is_active': 1
             }),
             content_type='application/json'
@@ -130,7 +130,7 @@ class PartsRequestsTestCase(TestCase):
                 'name': 'some-part-name',
                 'sku': get_a_random_sku(),
                 # the description is missing
-                'weight_onces': 100,
+                'weight_ounces': 100,
                 'is_active': 1
             }),
             content_type='application/json'
@@ -148,7 +148,7 @@ class PartsRequestsTestCase(TestCase):
                 'name': '',
                 'sku': get_a_random_sku(),
                 'description': 'some description text',
-                'weight_onces': 100,
+                'weight_ounces': 100,
                 'is_active': 1
             }),
             content_type='application/json'
@@ -160,22 +160,22 @@ class PartsRequestsTestCase(TestCase):
         self.assertTrue(res.status_code == PartsRequestsTestCase.HTTP_SUCCESS)        
         self.assertTrue(result)
     
-    def test_post_error_messages_weight_onces(self):
-        # Test an error post part with a negative value for weight_onces
+    def test_post_error_messages_weight_ounces(self):
+        # Test an error post part with a negative value for weight_ounces
         res = self.client.post(
             PartsRequestsTestCase.PART_POST,
             data = json.dumps({
                 'name': 'some name',
                 'sku': get_a_random_sku(),
                 'description': 'some description text',
-                'weight_onces': -100,
+                'weight_ounces': -100,
                 'is_active': 1
             }),
             content_type='application/json'
         )
         
-        result = 'weight_onces' in res.json().get('field')
-        new_part = Part.objects.filter(weight_onces=-100).first()
+        result = 'weight_ounces' in res.json().get('field')
+        new_part = Part.objects.filter(weight_ounces=-100).first()
         self.assertIsNone(new_part)
         self.assertTrue(res.status_code == PartsRequestsTestCase.HTTP_SUCCESS)        
         self.assertTrue(result)
@@ -189,7 +189,7 @@ class PartsRequestsTestCase(TestCase):
                 'name': 'some name',
                 'sku': sku,
                 'description': 'some description text' * 1024,
-                'weight_onces': 100,
+                'weight_ounces': 100,
                 'is_active': 1
             }),
             content_type='application/json'
@@ -210,7 +210,7 @@ class PartsRequestsTestCase(TestCase):
                 'name': 'some name',
                 'sku': sku,
                 'description': 'some description text',
-                'weight_onces': 100,
+                'weight_ounces': 100,
                 'is_active': 1
             }),
             content_type='application/json'
@@ -226,7 +226,7 @@ class PartsRequestsTestCase(TestCase):
             name='some-part-name',
             sku=sku,
             description='Some description text',
-            weight_onces = 20
+            weight_ounces = 20
         )
         res = self.client.put(
             PartsRequestsTestCase.PART_UPDATE.format(sku=sku),
@@ -234,14 +234,14 @@ class PartsRequestsTestCase(TestCase):
                 'name': part.name,
                 'sku': part.sku,
                 'description': 'Another description text',
-                'weight_onces': 25,
+                'weight_ounces': 25,
                 'is_active': part.is_active
             }),
             content_type='application/json'
         )
         part_updated = Part.objects.filter(sku=sku).first()        
         self.assertIsNotNone(part_updated)
-        self.assertEqual(part_updated.weight_onces, 25)
+        self.assertEqual(part_updated.weight_ounces, 25)
         self.assertEqual(part_updated.description, 'Another description text')
         
     def test_delete_part(self):
@@ -250,7 +250,7 @@ class PartsRequestsTestCase(TestCase):
             name='some-part-name',
             sku=sku,
             description='Some text as description',
-            weight_onces=20
+            weight_ounces=20
         )
         res = self.client.delete(
             PartsRequestsTestCase.PART_DELETE.format(sku=sku)
@@ -293,7 +293,7 @@ class PartTestCase(TestCase):
             name = 'Heavy coil',
             sku = get_a_random_sku(),
             description = 'Tightly wound nickel-gravy alloy spring',
-            weight_onces = 22,
+            weight_ounces = 22,
             is_active = 1
         )
         self.assertIsNotNone(part)
@@ -305,7 +305,7 @@ class PartTestCase(TestCase):
                 name = 'Heavy coil',
                 sku = '',
                 description = "Some part's description",
-                weight_onces = 22,
+                weight_ounces = 22,
                 is_active = 1
             )
         except Exception as _exception:
@@ -319,7 +319,7 @@ class PartTestCase(TestCase):
                 name = 'Heavy coil',
                 sku = '',
                 description = "Some part's description",
-                weight_onces = -22,
+                weight_ounces = -22,
                 is_active = 1
             )
         except Exception as _exception:
@@ -334,7 +334,7 @@ class PartTestCase(TestCase):
                 name = 'Some example of part',
                 sku = SKU,
                 description = 'Some sample of part',
-                weight_onces = 10,
+                weight_ounces = 10,
                 is_active = 1
             )
         except Exception as _exception:
@@ -345,7 +345,7 @@ class PartTestCase(TestCase):
                 name = 'Some example of part',
                 sku = SKU,
                 description = 'Some sample of part',
-                weight_onces = 10,
+                weight_ounces = 10,
                 is_active = 1
             )
         except django.db.utils.IntegrityError:
@@ -372,7 +372,7 @@ class PartTestCase(TestCase):
                 name = 'Some example of part',
                 sku = 'SOME-SKU-CODE-HERE',
                 description = a_very_long_description_with_2068_chars,
-                weight_onces = 10,
+                weight_ounces = 10,
                 is_active = 1
             )
         except Exception as _exception:
@@ -383,7 +383,7 @@ class PartTestCase(TestCase):
     # TO DICT Tests
     def test_part_to_dict(self):
         _sku = get_a_random_sku()
-        part = Part.objects.create(name='Heavy coil', sku=_sku, description='Tightly wound nickel-gravy alloy spring', weight_onces=22, is_active=1)
+        part = Part.objects.create(name='Heavy coil', sku=_sku, description='Tightly wound nickel-gravy alloy spring', weight_ounces=22, is_active=1)
         part_dict = part.to_dict()
-        self.assertDictContainsSubset({'name':'Heavy coil', 'sku': _sku, 'description': 'Tightly wound nickel-gravy alloy spring', 'weight_onces':22, 'is_active':1}, part_dict)
+        self.assertDictContainsSubset({'name':'Heavy coil', 'sku': _sku, 'description': 'Tightly wound nickel-gravy alloy spring', 'weight_ounces':22, 'is_active':1}, part_dict)
 

@@ -7,6 +7,7 @@ from ninja import NinjaAPI
 from ninja import Schema
 
 from core.models import Part
+from core.paging import paginate_items
 
 import json
 import sys
@@ -17,11 +18,13 @@ logging.basicConfig(
     filename = settings.LOG_FILENAME
 )
 
+WORDS_MOST_COMMON_LIMIT = 5
+PAGE_SIZE = 50
 class PartSchema(Schema):
     name: str
     sku: str
     description: str
-    weight_onces: int
+    weight_ounces: int
     is_active: int
 
 api = NinjaAPI(
@@ -50,7 +53,7 @@ def parts(request):
     parts_collection = [
         p.to_dict() for p in parts    
     ]
-    data = json.dumps(parts_collection)
+    data = parts_collection
     response = JsonResponse(data, safe=False)    
     return response
 
@@ -59,7 +62,7 @@ def parts_by_sku(request, sku):
     response = HttpResponse()
     try:
         part = Part.objects.get(sku=sku)
-        data = json.dumps(part.to_dict())
+        data = part.to_dict()
         response = JsonResponse(data, safe=False)
     except Part.DoesNotExist:
         response.status_code = 404
@@ -127,7 +130,7 @@ def new_part(request, part: PartSchema):
             'field': ''
         }
         if ('name' not in _error) \
-            and ('weight_onces' not in _error) \
+            and ('weight_ounces' not in _error) \
             and ('description' not in _error) \
             and ('sku' not in _error):
             response = HttpResponse()
@@ -136,8 +139,8 @@ def new_part(request, part: PartSchema):
         else:
             if 'name' in _error:
                 error_dict['field'] = 'name'
-            elif 'weight_onces' in _error:
-                error_dict['field'] = 'weight_onces'
+            elif 'weight_ounces' in _error:
+                error_dict['field'] = 'weight_ounces'
             elif 'description' in _error:
                 error_dict['field'] = 'description'
             elif 'sku' in _error:
@@ -169,7 +172,7 @@ def update_part(request, sku, part:PartSchema):
             'field': ''
         }
         if ('name' not in _error) \
-            and ('weight_onces' not in _error) \
+            and ('weight_ounces' not in _error) \
             and ('description' not in _error) \
             and ('sku' not in _error):
             response = HttpResponse()
@@ -178,8 +181,8 @@ def update_part(request, sku, part:PartSchema):
         else:
             if 'name' in _error:
                 error_dict['field'] = 'name'
-            elif 'weight_onces' in _error:
-                error_dict['field'] = 'weight_onces'
+            elif 'weight_ounces' in _error:
+                error_dict['field'] = 'weight_ounces'
             elif 'description' in _error:
                 error_dict['field'] = 'description'
             elif 'sku' in _error:
@@ -216,7 +219,7 @@ def most_common_words(request):
             res[d] = descriptions.count(d)
     sorted_items = sorted(res.items(), key=lambda x : x[1], reverse=True)
     res = {}
-    for k, v in sorted_items:
+    for k, v in sorted_items[0:WORDS_MOST_COMMON_LIMIT]:
         res[k] = v
     response = JsonResponse(data=res)
     return response
@@ -236,7 +239,7 @@ def most_commom_words_by_part(request, sku):
             res[d] = part.description.count(d)
     sorted_res = sorted(res.items(), key=lambda x: x[1], reverse=True)
     res = {}
-    for k, v in sorted_res:
+    for k, v in sorted_res[0:WORDS_MOST_COMMON_LIMIT]:
         res[k] = v
     response = JsonResponse(data={'part_sku': sku, 'most_common_words': res })
     return response    

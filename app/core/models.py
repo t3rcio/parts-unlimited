@@ -20,12 +20,12 @@ class Part(Base):
     '''
     Part's model
     '''
-    SEARCH_FIELDS = ['name', 'sku', 'weight_onces', 'description']
+    SEARCH_FIELDS = ['name', 'sku', 'weight_ounces', 'description']
     DESCRIPTION_MAX_LENGHT = 1024
     name = models.CharField(max_length=150, default='')
     sku = models.CharField(max_length=30, unique=True)
     description = models.CharField(max_length=1024, default='')
-    weight_onces = models.PositiveIntegerField(default=0)
+    weight_ounces = models.PositiveIntegerField(default=0)
     is_active = models.SmallIntegerField(default=1)
 
     def __str__(self):
@@ -38,8 +38,8 @@ class Part(Base):
             raise Exception('Name can not be empty')
         if not self.sku:
             raise Exception('SKU can not be empty')
-        if self.weight_onces < 0:
-            raise Exception('Weight_onces must be bigger than 0')
+        if self.weight_ounces < 0:
+            raise Exception('weight_ounces must be bigger than 0')
         if self.description and len(self.description) > Part.DESCRIPTION_MAX_LENGHT:
             raise Exception('Description can not be bigger the 1024 chars')
         
@@ -51,7 +51,7 @@ class Part(Base):
             'name': self.name,
             'sku': self.sku,
             'description': self.description,
-            'weight_onces': self.weight_onces,
+            'weight_ounces': self.weight_ounces,
             'is_active': self.is_active,
             'created_at': self.created_at.strftime(settings.FORMAT_DATETIME),
             'updated_at': self.updated_at.strftime(settings.FORMAT_DATETIME) if self.updated_at else ''
