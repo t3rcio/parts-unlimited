@@ -22,6 +22,9 @@ class PartsRequestsTestCase(TestCase):
     '''
     PARTS_GET_URL ='/api/parts'
     PART_GET_URL = '/api/part'
+    PART_POST = '/api/part/new'
+    PART_UPDATE = '/api/part/sku={sku}'
+    PART_DELETE = '/api/part/sku={sku}'
     SKU_SAMPLE = 'OWDD823011DJSD'
     HTTP_SUCCESS = 200
     HTTP_ERROR_REQUEST = 400
@@ -98,6 +101,163 @@ class PartsRequestsTestCase(TestCase):
             value=value_to_search_for)
         )
         self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_ERROR_REQUEST)
+    
+    def test_post_new_part(self):
+        # Test the simple post part
+        res = self.client.post(
+            PartsRequestsTestCase.PART_POST,
+            data = json.dumps({
+                'name': 'some-part-name',
+                'sku': get_a_random_sku(),
+                'description': 'some description text',
+                'weight_onces': 100,
+                'is_active': 1
+            }),
+            content_type='application/json'
+        )
+
+        new_part = Part.objects.filter(name='some-part-name').first()
+        self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
+        self.assertIsNotNone(new_part)
+    
+    def test_post_new_part_error(self):
+        # Test an error post part
+        res = self.client.post(
+            PartsRequestsTestCase.PART_POST,
+            data = json.dumps({
+                'name': 'some-part-name',
+                'sku': get_a_random_sku(),
+                # the description is missing
+                'weight_onces': 100,
+                'is_active': 1
+            }),
+            content_type='application/json'
+        )
+
+        new_part = Part.objects.filter(name='some-part-name').first()
+        self.assertFalse(res.status_code == PartsRequestsTestCase.HTTP_SUCCESS)
+        self.assertIsNone(new_part)
+    
+    def test_post_error_messages_name(self):
+        # Test an error post part without name
+        res = self.client.post(
+            PartsRequestsTestCase.PART_POST,
+            data = json.dumps({
+                'name': '',
+                'sku': get_a_random_sku(),
+                'description': 'some description text',
+                'weight_onces': 100,
+                'is_active': 1
+            }),
+            content_type='application/json'
+        )
+        
+        result = 'name' in res.json().get('field')
+        new_part = Part.objects.filter(name='').first()
+        self.assertIsNone(new_part)
+        self.assertTrue(res.status_code == PartsRequestsTestCase.HTTP_SUCCESS)        
+        self.assertTrue(result)
+    
+    def test_post_error_messages_weight_onces(self):
+        # Test an error post part with a negative value for weight_onces
+        res = self.client.post(
+            PartsRequestsTestCase.PART_POST,
+            data = json.dumps({
+                'name': 'some name',
+                'sku': get_a_random_sku(),
+                'description': 'some description text',
+                'weight_onces': -100,
+                'is_active': 1
+            }),
+            content_type='application/json'
+        )
+        
+        result = 'weight_onces' in res.json().get('field')
+        new_part = Part.objects.filter(weight_onces=-100).first()
+        self.assertIsNone(new_part)
+        self.assertTrue(res.status_code == PartsRequestsTestCase.HTTP_SUCCESS)        
+        self.assertTrue(result)
+    
+    def test_post_error_messages_description(self):
+        # Test an error post part with very long length por description
+        sku = get_a_random_sku()
+        res = self.client.post(
+            PartsRequestsTestCase.PART_POST,
+            data = json.dumps({
+                'name': 'some name',
+                'sku': sku,
+                'description': 'some description text' * 1024,
+                'weight_onces': 100,
+                'is_active': 1
+            }),
+            content_type='application/json'
+        )
+        
+        result = 'description' in res.json().get('field')
+        new_part = Part.objects.filter(sku=sku).first()
+        self.assertIsNone(new_part)
+        self.assertTrue(res.status_code == PartsRequestsTestCase.HTTP_SUCCESS)        
+        self.assertTrue(result)
+    
+    def test_post_error_messages_sku(self):
+        # Test an error post part with an already existing sku value
+        sku = Part.objects.all().first().sku # a already value in database        
+        res = self.client.post(
+            PartsRequestsTestCase.PART_POST,
+            data = json.dumps({
+                'name': 'some name',
+                'sku': sku,
+                'description': 'some description text',
+                'weight_onces': 100,
+                'is_active': 1
+            }),
+            content_type='application/json'
+        )
+        
+        result = 'sku' in res.json().get('field')
+        self.assertTrue(res.status_code == PartsRequestsTestCase.HTTP_SUCCESS)        
+        self.assertTrue(result)
+    
+    def test_update_part(self):
+        sku = get_a_random_sku()
+        part = Part.objects.create(
+            name='some-part-name',
+            sku=sku,
+            description='Some description text',
+            weight_onces = 20
+        )
+        res = self.client.put(
+            PartsRequestsTestCase.PART_UPDATE.format(sku=sku),
+            data = json.dumps({
+                'name': part.name,
+                'sku': part.sku,
+                'description': 'Another description text',
+                'weight_onces': 25,
+                'is_active': part.is_active
+            }),
+            content_type='application/json'
+        )
+        part_updated = Part.objects.filter(sku=sku).first()        
+        self.assertIsNotNone(part_updated)
+        self.assertEqual(part_updated.weight_onces, 25)
+        self.assertEqual(part_updated.description, 'Another description text')
+        
+    def test_delete_part(self):
+        sku = get_a_random_sku()
+        part = Part.objects.create(
+            name='some-part-name',
+            sku=sku,
+            description='Some text as description',
+            weight_onces=20
+        )
+        res = self.client.delete(
+            PartsRequestsTestCase.PART_DELETE.format(sku=sku)
+        )
+        _part = Part.objects.filter(sku=sku).first()
+        self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
+        self.assertIsNone(_part)
+        self.assertEqual(res.json().get('sku'), sku)
+
 
 
 class PartTestCase(TestCase):
