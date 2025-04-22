@@ -200,4 +200,40 @@ def delete_part(request, sku):
         trace = traceback.format_exc()
         logging.error(trace + '\n' + str(_exception))
     return response
-     
+
+@api.get('/parts/mostcommonwords')
+def most_common_words(request):
+    '''
+    Return the most common words in all parts
+    '''
+    descriptions = ''.join(Part.objects.all().values_list('description', flat=True))
+    res = dict()
+    for d in descriptions.split(' '):
+        if d not in res:
+            res[d] = descriptions.count(d)
+    sorted_items = sorted(res.items(), key=lambda x : x[1], reverse=True)
+    res = {}
+    for k, v in sorted_items:
+        res[k] = v
+    response = JsonResponse(data=res)
+    return response
+
+@api.get('part/sku={sku}/mostcommonwords')
+def most_commom_words_by_part(request, sku):
+    '''
+    Return the most common words in a especific part description
+    '''
+    part = Part.objects.filter(sku=sku).first()
+    if not part:
+        response = JsonResponse(data={})
+        return response
+    res = {}
+    for d in part.description.split(' '):
+        if d not in res:
+            res[d] = part.description.count(d)
+    sorted_res = sorted(res.items(), key=lambda x: x[1], reverse=True)
+    res = {}
+    for k, v in sorted_res:
+        res[k] = v
+    response = JsonResponse(data={'part_sku': sku, 'most_common_words': res })
+    return response    

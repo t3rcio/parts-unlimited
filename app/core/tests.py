@@ -25,6 +25,8 @@ class PartsRequestsTestCase(TestCase):
     PART_POST = '/api/part/new'
     PART_UPDATE = '/api/part/sku={sku}'
     PART_DELETE = '/api/part/sku={sku}'
+    PARTS_MOST_COMMON_WORDS = '/api/parts/mostcommonwords'
+    PART_MOST_COMMON_WORDS = '/api/part/sku={sku}/mostcommonwords'
     SKU_SAMPLE = 'OWDD823011DJSD'
     HTTP_SUCCESS = 200
     HTTP_ERROR_REQUEST = 400
@@ -257,8 +259,29 @@ class PartsRequestsTestCase(TestCase):
         self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
         self.assertIsNone(_part)
         self.assertEqual(res.json().get('sku'), sku)
+    
+    def test_parts_most_common_words(self):
+        res = self.client.get(
+            PartsRequestsTestCase.PARTS_MOST_COMMON_WORDS
+        )
+        self.assertEqual(res.status_code, PartsRequestsTestCase.HTTP_SUCCESS)
+        self.assertEqual(type(res.json()), dict)
 
-
+    def test_part_most_common_words(self):
+        res = self.client.get(
+            PartsRequestsTestCase.PART_MOST_COMMON_WORDS.format(sku=PartsRequestsTestCase.SKU_SAMPLE)
+        )
+        most_common_words = {
+            "part_sku": "OWDD823011DJSD",
+            "most_common_words": {
+                "Used": 1,
+                "for": 1,
+                "heavy-load": 1,
+                "computing": 1
+            }
+        }
+        self.assertEqual(most_common_words.get('part_sku'), PartsRequestsTestCase.SKU_SAMPLE)
+        self.assertEqual(type(most_common_words.get('most_common_words')), dict)
 
 class PartTestCase(TestCase):
 
