@@ -17,7 +17,7 @@ def paginate_items(items:list, page_size:int = None) -> dict:
     
     if how_many_pages == 1:
         paginated_result[1] = items
-        return paginated_result
+        return paginated_result, how_many_pages
     
     for i in list(range(0, how_many_pages)):        
         start = (i*pg_size)
@@ -28,4 +28,4 @@ def paginate_items(items:list, page_size:int = None) -> dict:
         __items = items[start:end]
         paginated_result[i+1] = __items
     
-    return paginated_result
+    return paginated_result, how_many_pages
