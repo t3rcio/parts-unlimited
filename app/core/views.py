@@ -56,7 +56,7 @@ def parts(request, page=1):
         p.to_dict() for p in parts    
     ]
     items, pages = paginate_items(parts_collection, page_size=PAGE_SIZE)
-    data['items'] = items
+    data['items'] = items.get(page)
     data['pages'] = pages
     data['current_page'] = page
     data['next_page'] = '/api/parts?page=' + str(page+1) if page < pages else ''
@@ -105,7 +105,7 @@ def parts_by_parameters(request, param, value, page=1):
         
         parts_collection = [p.to_dict() for p in parts]
         items, pages = paginate_items(parts_collection, page_size=PAGE_SIZE)
-        data['items'] = items
+        data['items'] = items.get(page)
         data['pages'] = pages
         data['current_page'] = page
         data['next_page'] = ('/api/parts/param={param}/value={value}?page=' + str(page+1) if page < pages else '').format(param=param, value=value)
