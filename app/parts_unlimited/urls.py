@@ -17,9 +17,10 @@ from django.contrib import admin
 from django.urls import path
 
 from ninja import NinjaAPI
-from core.views import api
+from core.views import api, home
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
+    path('', home),
 ]

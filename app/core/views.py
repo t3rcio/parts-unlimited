@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.utils import timezone
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 
 from ninja import NinjaAPI
@@ -33,6 +33,9 @@ api = NinjaAPI(
         'description': 'API DEMO - Parts Unlimited',
     }
 )
+
+def home(request):
+    return redirect ('/api/docs')
 
 def existent_part(sku):
     '''
