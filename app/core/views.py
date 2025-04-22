@@ -18,6 +18,7 @@ logging.basicConfig(
     filename = settings.LOG_FILENAME
 )
 
+MIN_SIZE_WORD = 3
 WORDS_MOST_COMMON_LIMIT = 5
 PAGE_SIZE = 10
 class PartSchema(Schema):
@@ -107,8 +108,8 @@ def parts_by_parameters(request, param, value, page=1):
         data['items'] = items
         data['pages'] = pages
         data['current_page'] = page
-        data['next_page'] = '/api/parts?page=' + str(page+1) if page < pages else ''
-        data['previous_page'] = '/api/parts?page=' + str(page-1) if page > 1 else ''
+        data['next_page'] = ('/api/parts/param={param}/value={value}?page=' + str(page+1) if page < pages else '').format(param=param, value=value)
+        data['previous_page'] = ('/api/parts/param={param}/value={value}?page=' + str(page-1) if page > 1 else '').format(param=param, value=value)
         response = JsonResponse(data, safe=False)
         return response
     except Exception as _exception:
@@ -228,7 +229,7 @@ def most_common_words(request):
     descriptions = ''.join(Part.objects.all().values_list('description', flat=True))
     res = dict()
     for d in descriptions.split(' '):
-        if d not in res:
+        if d not in res and len(d) > MIN_SIZE_WORD:
             res[d] = descriptions.count(d)
     sorted_items = sorted(res.items(), key=lambda x : x[1], reverse=True)
     res = {}
@@ -248,7 +249,7 @@ def most_commom_words_by_part(request, sku):
         return response
     res = {}
     for d in part.description.split(' '):
-        if d not in res:
+        if d not in res and len(d) > MIN_SIZE_WORD:
             res[d] = part.description.count(d)
     sorted_res = sorted(res.items(), key=lambda x: x[1], reverse=True)
     res = {}
