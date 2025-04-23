@@ -3,7 +3,7 @@
 Parts-unlimited is a project written in Python/Django with a Sqlite database to store Parts and its properties as SKU, Weight (ounces) and description.
 
 ## Running the project
-### Dev enviroment
+### Dev environment
 To run the project in your dev environment you should install the Python Libs at your Python env.
 ([Read more about Python environments](https://docs.python.org/3/library/venv.html))
 
