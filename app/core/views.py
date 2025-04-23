@@ -32,10 +32,10 @@ api = NinjaAPI(
     openapi_extra={
         'info': {
             'termsOfService' : 'https://github.com/t3rcio/parts-unlimited'
-        },
-        'title': 'API Server - Parts Unlimited Project',
-        'description': 'API DEMO - Parts Unlimited',
-    }
+        }
+    },
+    title = 'Parts Unlimited Project',
+    description =  'API DEMO - Parts Unlimited',    
 )
 
 def home(request):
